@@ -271,7 +271,10 @@ $joliprint().set('format','json').set('callback','joliprint_getPdf').set('servic
 <h3>Doing Nothing, the Twisted Way</h3>
 <p>Eventually we are going to re-implement our asynchronous poetry client using Twisted. But first let's write a few really simple Twisted programs just to get the flavor of things. As I mentioned in Part 2, I developed these examples using Twisted 8.2.0. Twisted APIs do change, but the core APIs we are going to use will likely change slowly, if at all, so I expect these examples to work for many future releases. If you don't have Twisted installed you can obtain it <a href="http://twistedmatrix.com/trac/wiki/Downloads">here</a>.</p>
 <p>The absolute simplest Twisted program is listed below, and is also available in <a href="http://github.com/jdavisp3/twisted-intro/blob/master/basic-twisted/simple.py"><tt>basic-twisted/simple.py</tt></a> in the base directory of the <tt>twisted-intro</tt> example code.</p>
-<div><div id="highlighter_797623" class="syntaxhighlighter  py"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="py keyword">from</code> <code class="py plain">twisted.internet </code><code class="py keyword">import</code> <code class="py plain">reactor</code></div><div class="line number2 index1 alt1"><code class="py plain">reactor.run()</code></div></div></td></tr></tbody></table></div></div>
+<pre>
+from twisted.internet import reactor
+reactor.run()
+</pre>
 <p>You can run it like this:</p>
 <div><div id="highlighter_814222" class="syntaxhighlighter  py"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="py plain">python basic</code><code class="py keyword">-</code><code class="py plain">twisted</code><code class="py keyword">/</code><code class="py plain">simple.py</code></div></div></td></tr></tbody></table></div></div>
 <p>As we saw in <a href="http://krondo.com/blog/?p=1247">Part 2</a>, Twisted is an implementation of the <a href="http://en.wikipedia.org/wiki/Reactor_pattern">Reactor Pattern</a> and thus contains an object that represents the reactor, or event loop, that is the heart of any Twisted program. The first line of our program imports the reactor object so we can use it, and the second line tells the reactor to start running the loop.</p>
@@ -292,12 +295,35 @@ $joliprint().set('format','json').set('callback','joliprint_getPdf').set('servic
 <p style="padding-left: 30px;">Note: as of this writing, Twisted has been moving gradually towards an architecture which would allow multiple reactors to co-exist. In this scheme, a reactor object would be passed around as a reference rather than imported from a module.</p>
 <p style="padding-left: 30px;">Note: not all operating systems support the <code>poll</code> call. If that is the case for your system, this example will not work.</p>
 <p>Now we can re-implement our first Twisted program using the <code>pollreactor</code>, as found in <a href="http://github.com/jdavisp3/twisted-intro/blob/master/basic-twisted/simple-poll.py"><tt>basic-twisted/simple-poll.py</tt></a>:</p>
-<div><div id="highlighter_423421" class="syntaxhighlighter  py"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div><div class="line number3 index2 alt2">3</div><div class="line number4 index3 alt1">4</div><div class="line number5 index4 alt2">5</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="py keyword">from</code> <code class="py plain">twisted.internet </code><code class="py keyword">import</code> <code class="py plain">pollreactor</code></div><div class="line number2 index1 alt1"><code class="py plain">pollreactor.install()</code></div><div class="line number3 index2 alt2">&nbsp;</div><div class="line number4 index3 alt1"><code class="py keyword">from</code> <code class="py plain">twisted.internet </code><code class="py keyword">import</code> <code class="py plain">reactor</code></div><div class="line number5 index4 alt2"><code class="py plain">reactor.run()</code></div></div></td></tr></tbody></table></div></div>
+
+<pre>
+
+from twisted.internet import pollreactor
+pollreactor.install()
+
+from twisted.internet import reactor
+reactor.run()
+</pre>
+
 <p>And we have a poll loop that does nothing at all instead of a select loop that does nothing at all. Neato.</p>
 <p>We're going to stick with the default reactor for the rest of this introduction. For the purposes of learning Twisted, all the reactors do the same thing.</p>
 <h3>Hello, Twisted</h3>
 <p>Let's make a Twisted program that at least does <em>something</em>. Here's one that prints a message to the terminal window, after the reactor loop starts up:</p>
-<div><div id="highlighter_183392" class="syntaxhighlighter  py"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div><div class="line number3 index2 alt2">3</div><div class="line number4 index3 alt1">4</div><div class="line number5 index4 alt2">5</div><div class="line number6 index5 alt1">6</div><div class="line number7 index6 alt2">7</div><div class="line number8 index7 alt1">8</div><div class="line number9 index8 alt2">9</div><div class="line number10 index9 alt1">10</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="py keyword">def</code> <code class="py plain">hello():</code></div><div class="line number2 index1 alt1"><code class="py spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="py functions">print</code> <code class="py string">'Hello from the reactor loop!'</code></div><div class="line number3 index2 alt2"><code class="py spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="py functions">print</code> <code class="py string">'Lately I feel like I\'m stuck in a rut.'</code></div><div class="line number4 index3 alt1">&nbsp;</div><div class="line number5 index4 alt2"><code class="py keyword">from</code> <code class="py plain">twisted.internet </code><code class="py keyword">import</code> <code class="py plain">reactor</code></div><div class="line number6 index5 alt1">&nbsp;</div><div class="line number7 index6 alt2"><code class="py plain">reactor.callWhenRunning(hello)</code></div><div class="line number8 index7 alt1">&nbsp;</div><div class="line number9 index8 alt2"><code class="py functions">print</code> <code class="py string">'Starting the reactor.'</code></div><div class="line number10 index9 alt1"><code class="py plain">reactor.run()</code></div></div></td></tr></tbody></table></div></div>
+
+<pre>
+
+def hello():
+    print 'Hello from the reactor loop!'
+    print 'Lately I feel like I\'m stuck in a rut.'
+ 
+from twisted.internet import reactor
+ 
+reactor.callWhenRunning(hello)
+ 
+print 'Starting the reactor.'
+reactor.run()
+</pre>
+
 <p>This program is in <a href="http://github.com/jdavisp3/twisted-intro/blob/master/basic-twisted/hello.py"><tt>basic-twisted/hello.py</tt></a>. If you run it, you will see this output:</p>
 <pre>Starting the reactor.
 Hello from the reactor loop!
