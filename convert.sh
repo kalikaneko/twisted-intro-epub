@@ -1,2 +1,2 @@
 #!/bin/sh
-pandoc twisted-intro.html -o intro.epub
+pandoc twisted-intro.html -o intro-to-twisted.epub
